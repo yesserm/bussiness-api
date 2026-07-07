@@ -1,9 +1,12 @@
+@baseUrl = http://localhost:8080
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNDY2NzI3LCJleHAiOjE3ODM0Njc2Mjd9.i0XPNS0e_L_iSG6zFg575wfYjitVZkpmUtV5J8t1CNY
+
 ### Obtener posts externos
-GET http://localhost:8080/api/v1/external/posts
+GET {{baseUrl}}/api/v1/external/posts
 Accept: application/json
 
 ### Crear usuario
-POST http://localhost:8080/api/v1/auth/register
+POST {{baseUrl}}/api/v1/auth/register
 Content-Type: application/json
 
 {
@@ -13,9 +16,11 @@ Content-Type: application/json
 }
 
 ### Obtener todos los usuarios
-GET http://localhost:8080/api/v1/users
+GET {{baseUrl}}/api/v1/users
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ### Obtener usuario por id
-GET http://localhost:8080/api/v1/users/1
+GET {{baseUrl}}/api/v1/users/1
+Authorization: Bearer {{accessToken}}
 Accept: application/json

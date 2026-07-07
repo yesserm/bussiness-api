@@ -84,6 +84,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setEnabled(true);
+        user.setActive(true);
         user.setRoles(Set.of(role));
 
         User saved = userRepository.save(user);
@@ -104,8 +105,8 @@ public class AuthServiceImpl implements AuthService {
                 .authorities(user.getRoles()
                         .stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                        .toList())
-                .disabled(!user.isEnabled())
+                .toList())
+                .disabled(!user.isEnabled() || !user.isActive())
                 .build();
 
         TokenDTO tokens = new TokenDTO(
@@ -115,12 +116,7 @@ public class AuthServiceImpl implements AuthService {
                 jwtService.accessTokenExpiration()
         );
 
-        UserDTO userDTO = new UserDTO(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRoles().stream().map(Role::getName).collect(Collectors.toSet())
-        );
+        UserDTO userDTO = UserMapper.toDto(user);
 
         return new LoginResponse(tokens, userDTO);
     }

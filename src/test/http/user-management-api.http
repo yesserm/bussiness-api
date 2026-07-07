@@ -1,0 +1,57 @@
+@baseUrl = http://localhost:8080
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNDY3MzQ5LCJleHAiOjE3ODM0NjgyNDl9.Ng8m7VEAj3VnDm1DHHWjTXgrDXHpbtLcjPSC0Wvigzo
+@adminAccessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNDY3MzQ5LCJleHAiOjE3ODM0NjgyNDl9.Ng8m7VEAj3VnDm1DHHWjTXgrDXHpbtLcjPSC0Wvigzo
+
+### Change password
+POST {{baseUrl}}/api/v1/users/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "password123",
+  "newPassword": "password456"
+}
+
+### Update profile
+PUT {{baseUrl}}/api/v1/users/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Demo User",
+  "email": "demo@example.com",
+  "phone": "+50588887777",
+  "avatar": "https://example.com/avatar.png"
+}
+
+### List users
+GET {{baseUrl}}/api/v1/users?name=demo&email=example&role=USER&active=true&page=0&size=20&sort=createdAt,desc
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Search users
+POST {{baseUrl}}/api/v1/users/search?page=0&size=20&sort=createdAt,desc
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "demo",
+  "email": "example",
+  "roles": ["USER"],
+  "active": true,
+  "createdFrom": "2026-01-01T00:00:00Z",
+  "createdTo": "2026-12-31T23:59:59Z"
+}
+
+### Deactivate user
+DELETE {{baseUrl}}/api/v1/users/1
+Authorization: Bearer {{adminAccessToken}}
+
+### Change role
+POST {{baseUrl}}/api/v1/admin/users/1/role
+Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "role": "ADMIN"
+}

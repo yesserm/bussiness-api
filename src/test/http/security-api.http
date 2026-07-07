@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080
-@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZW1vQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgzNDYzODUyLCJleHAiOjE3ODM0NjQ3NTJ9.AIstqJ5rWRur3ujanl_m0Zei7Pxo8Sd5uHJnC58YxQM
-@refreshToken = uXeNyomF6xkdRQqmDPjxP_RfLI8aJotzo07OsQhyHjvLuOzWu9Q7FqPrMVDDzTaUT9KBG5Vcnot6DLfXJP-IWA
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNDY3MzQ5LCJleHAiOjE3ODM0NjgyNDl9.Ng8m7VEAj3VnDm1DHHWjTXgrDXHpbtLcjPSC0Wvigzo
+@refreshToken = P-BGSqqLIKui5ByvZ9dH-c17oKitImaioT56Pu0fRosmd4FSaZsvWVhOtCEPivpsb2XF02-8TrKUHrB2iS8VsQ
 
 ### Register
 POST {{baseUrl}}/api/v1/auth/register

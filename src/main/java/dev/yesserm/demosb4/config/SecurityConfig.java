@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(
@@ -54,7 +56,7 @@ public class SecurityConfig {
                                 .stream()
                                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                                 .toList())
-                        .disabled(!user.isEnabled())
+                        .disabled(!user.isEnabled() || !user.isActive())
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }

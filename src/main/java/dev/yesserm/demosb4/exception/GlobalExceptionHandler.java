@@ -23,6 +23,16 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler({InvalidPasswordException.class, EmailAlreadyExistsException.class})
+    ProblemDetail invalidUserRequest(RuntimeException ex) {
+        return problem(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler({UserNotFoundException.class, RoleNotFoundException.class})
+    ProblemDetail notFound(RuntimeException ex) {
+        return problem(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ProblemDetail validation(MethodArgumentNotValidException ex) {
         return problem(HttpStatus.BAD_REQUEST, "Request validation failed");
