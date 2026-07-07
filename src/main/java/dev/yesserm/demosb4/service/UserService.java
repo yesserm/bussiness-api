@@ -1,11 +1,12 @@
 package dev.yesserm.demosb4.service;
 
-import dev.yesserm.demosb4.dto.UserDto;
+import dev.yesserm.demosb4.dto.UserDTO;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
 public interface UserService {
-    UserDto create(UserDto dto);
-    List<UserDto> findAll();
-    UserDto findById(Long id);
+    List<UserDTO> findAll();
+    UserDTO findById(Long id);
+    UserDTO getProfile(Authentication authentication);
 }

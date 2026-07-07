@@ -3,12 +3,13 @@ GET http://localhost:8080/api/v1/external/posts
 Accept: application/json
 
 ### Crear usuario
-POST http://localhost:8080/api/v1/users
+POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 
 {
   "name": "Joel",
-  "email": "joel@example.com"
+  "email": "joel@example.com",
+  "password": "password123"
 }
 
 ### Obtener todos los usuarios

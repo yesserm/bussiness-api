@@ -1,8 +1,11 @@
 package dev.yesserm.demosb4.dto;
 
-public record UserDto(
+import java.util.Set;
+
+public record UserDTO(
         Long id,
         String name,
-        String email
+        String email,
+        Set<String> roles
 ) {
 }
