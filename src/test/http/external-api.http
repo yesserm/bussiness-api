@@ -1,8 +1,9 @@
 @baseUrl = http://localhost:8080
-@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNDY2NzI3LCJleHAiOjE3ODM0Njc2Mjd9.i0XPNS0e_L_iSG6zFg575wfYjitVZkpmUtV5J8t1CNY
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2VsQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgzNTQ4NDUwLCJleHAiOjE3ODM1NDkzNTB9.STAsAzCl4OvpCCsn2pEpoVuMQZ1TvzVdGwuZCOdb0U0
 
-### Obtener posts externos
+### External API posts
 GET {{baseUrl}}/api/v1/external/posts
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ### Crear usuario

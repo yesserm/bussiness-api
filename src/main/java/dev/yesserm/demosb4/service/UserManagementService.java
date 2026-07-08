@@ -13,7 +13,7 @@ public interface UserManagementService {
     void changePassword(Authentication authentication, ChangePasswordRequest request);
     UserDTO updateProfile(Authentication authentication, UpdateProfileRequest request);
     void deactivateUser(Long id);
-    UserDTO changeRole(Long id, ChangeRoleRequest request);
+    UserDTO changeRole(Long id, ChangeRoleRequest request, Authentication authentication);
     PageResponse<UserDTO> listUsers(String name, String email, String role, Boolean active, Pageable pageable);
     PageResponse<UserDTO> searchUsers(SearchUserRequest request, Pageable pageable);
 }

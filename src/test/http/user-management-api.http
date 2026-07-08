@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080
-@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNDY3MzQ5LCJleHAiOjE3ODM0NjgyNDl9.Ng8m7VEAj3VnDm1DHHWjTXgrDXHpbtLcjPSC0Wvigzo
-@adminAccessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNDY3MzQ5LCJleHAiOjE3ODM0NjgyNDl9.Ng8m7VEAj3VnDm1DHHWjTXgrDXHpbtLcjPSC0Wvigzo
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNTUwNDgxLCJleHAiOjE3ODM1NTEzODF9.NlrPPLlI2JLWFTfll_zswwuNek6zOZCj4CGfTIreBt4
+@adminAccessToken = V2h5VGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklz
 
 ### Change password
 POST {{baseUrl}}/api/v1/users/change-password
@@ -50,6 +50,15 @@ Authorization: Bearer {{adminAccessToken}}
 ### Change role
 POST {{baseUrl}}/api/v1/admin/users/1/role
 Authorization: Bearer {{adminAccessToken}}
+Content-Type: application/json
+
+{
+  "role": "ADMIN"
+}
+
+### Change role forbidden for normal user
+POST {{baseUrl}}/api/v1/admin/users/1/role
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {

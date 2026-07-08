@@ -14,7 +14,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "refresh_tokens")
-public class RefreshToken {
+public class RefreshToken extends AuditableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,9 +31,6 @@ public class RefreshToken {
 
     @Column(nullable = false)
     private boolean revoked;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt = Instant.now();
 
     public Long getId() {
         return id;
@@ -71,7 +68,4 @@ public class RefreshToken {
         this.revoked = revoked;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
 }

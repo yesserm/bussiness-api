@@ -4,6 +4,8 @@ import dev.yesserm.demosb4.dto.ChangeRoleRequest;
 import dev.yesserm.demosb4.dto.UserDTO;
 import dev.yesserm.demosb4.service.UserManagementService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +22,12 @@ public class AdminUserController {
     }
 
     @PostMapping("/{id}/role")
-    public UserDTO changeRole(@PathVariable Long id, @Valid @RequestBody ChangeRoleRequest request) {
-        return userManagementService.changeRole(id, request);
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserDTO changeRole(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangeRoleRequest request,
+            Authentication authentication
+    ) {
+        return userManagementService.changeRole(id, request, authentication);
     }
 }

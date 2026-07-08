@@ -8,6 +8,7 @@ import dev.yesserm.demosb4.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +29,14 @@ public class AuthController {
     @PostMapping("/register")
     public LoginResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
+    }
+
+    @PostMapping("/register-admin")
+    public LoginResponse registerAdmin(
+            @RequestHeader("X-Admin-Setup-Key") String setupKey,
+            @Valid @RequestBody RegisterRequest request
+    ) {
+        return authService.registerAdmin(request, setupKey);
     }
 
     @PostMapping("/refresh")

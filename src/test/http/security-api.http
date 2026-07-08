@@ -1,6 +1,7 @@
 @baseUrl = http://localhost:8080
-@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNDY3MzQ5LCJleHAiOjE3ODM0NjgyNDl9.Ng8m7VEAj3VnDm1DHHWjTXgrDXHpbtLcjPSC0Wvigzo
-@refreshToken = P-BGSqqLIKui5ByvZ9dH-c17oKitImaioT56Pu0fRosmd4FSaZsvWVhOtCEPivpsb2XF02-8TrKUHrB2iS8VsQ
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtaXJhbmRhQHllc3Nlcm0uZGV2IiwiaWF0IjoxNzgzNTUwNTY1LCJleHAiOjE3ODM1NTE0NjV9.vH6aTFylYmIkWIAFSW14FgKIbmN9SDUi68Ygk9YMttI
+@refreshToken = -QzS1xFd1zuDunpSkSH6yBfawx8YGfbgy3fb7AuAQh6imI3JNjPvbjUmWqqzg6falyJV-KZ5BZHf_ij2Jyx-Zw
+@adminSetupKey = V2h5VGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklz
 
 ### Register
 POST {{baseUrl}}/api/v1/auth/register
@@ -10,6 +11,17 @@ Content-Type: application/json
   "name": "Yesser Miranda",
   "email": "miranda@yesserm.dev",
   "password": "password1234"
+}
+
+### Register admin with internal setup key
+POST {{baseUrl}}/api/v1/auth/register-admin
+X-Admin-Setup-Key: {{adminSetupKey}}
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin2@example.com",
+  "password": "Admin1234!"
 }
 
 ### Login
@@ -33,6 +45,18 @@ Content-Type: application/json
 GET {{baseUrl}}/api/v1/users/me
 Authorization: Bearer {{accessToken}}
 Accept: application/json
+
+### Audit check: update profile, then inspect updatedBy in response
+PUT {{baseUrl}}/api/v1/users/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Yesser Miranda",
+  "email": "miranda@yesserm.dev",
+  "phone": "+50588887777",
+  "avatar": "https://example.com/avatar.png"
+}
 
 ### Get all users
 GET {{baseUrl}}/api/v1/users

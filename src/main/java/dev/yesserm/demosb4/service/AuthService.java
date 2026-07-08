@@ -8,5 +8,6 @@ import dev.yesserm.demosb4.dto.RegisterRequest;
 public interface AuthService {
     LoginResponse login(LoginRequest request);
     LoginResponse register(RegisterRequest request);
+    LoginResponse registerAdmin(RegisterRequest request, String setupKey);
     LoginResponse refresh(RefreshTokenRequest request);
 }

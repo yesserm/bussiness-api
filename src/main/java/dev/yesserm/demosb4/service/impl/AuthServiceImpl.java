@@ -6,6 +6,7 @@ import dev.yesserm.demosb4.dto.RefreshTokenRequest;
 import dev.yesserm.demosb4.dto.RegisterRequest;
 import dev.yesserm.demosb4.dto.TokenDTO;
 import dev.yesserm.demosb4.dto.UserDTO;
+import dev.yesserm.demosb4.exception.ForbiddenException;
 import dev.yesserm.demosb4.exception.InvalidCredentialsException;
 import dev.yesserm.demosb4.model.RefreshToken;
 import dev.yesserm.demosb4.model.Role;
@@ -21,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final String adminSetupKey;
 
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
@@ -42,7 +45,8 @@ public class AuthServiceImpl implements AuthService {
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
-            RefreshTokenService refreshTokenService
+            RefreshTokenService refreshTokenService,
+            @Value("${app.security.admin-setup-key:}") String adminSetupKey
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
@@ -50,6 +54,7 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
+        this.adminSetupKey = adminSetupKey;
     }
 
     @Override
@@ -72,12 +77,26 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse register(RegisterRequest request) {
+        return registerWithRole(request, "USER");
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse registerAdmin(RegisterRequest request, String setupKey) {
+        if (adminSetupKey == null || adminSetupKey.isBlank() || !adminSetupKey.equals(setupKey)) {
+            throw new ForbiddenException("Invalid admin setup key");
+        }
+
+        return registerWithRole(request, "ADMIN");
+    }
+
+    private LoginResponse registerWithRole(RegisterRequest request, String roleName) {
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Email is already registered");
         }
 
-        Role role = roleRepository.findByName("USER")
-                .orElseThrow(() -> new IllegalStateException("Default USER role is missing"));
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new IllegalStateException("Default " + roleName + " role is missing"));
 
         User user = new User();
         user.setName(request.name());

@@ -20,7 +20,9 @@ final class UserMapper {
                 user.isActive(),
                 user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()),
                 user.getCreatedAt(),
-                user.getUpdatedAt()
+                user.getUpdatedAt(),
+                user.getCreatedBy(),
+                user.getUpdatedBy()
         );
     }
 }

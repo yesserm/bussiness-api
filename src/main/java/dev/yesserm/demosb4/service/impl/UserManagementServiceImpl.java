@@ -7,6 +7,7 @@ import dev.yesserm.demosb4.dto.SearchUserRequest;
 import dev.yesserm.demosb4.dto.UpdateProfileRequest;
 import dev.yesserm.demosb4.dto.UserDTO;
 import dev.yesserm.demosb4.exception.EmailAlreadyExistsException;
+import dev.yesserm.demosb4.exception.ForbiddenException;
 import dev.yesserm.demosb4.exception.InvalidPasswordException;
 import dev.yesserm.demosb4.exception.RoleNotFoundException;
 import dev.yesserm.demosb4.exception.UserNotFoundException;
@@ -85,7 +86,14 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     @Transactional
-    public UserDTO changeRole(Long id, ChangeRoleRequest request) {
+    public UserDTO changeRole(Long id, ChangeRoleRequest request, Authentication authentication) {
+        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+
+        if (!isAdmin) {
+            throw new ForbiddenException("Only ADMIN users can change roles");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
         Role role = roleRepository.findByName(request.role())

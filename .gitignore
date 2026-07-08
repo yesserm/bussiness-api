@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### HTTP client files may contain bearer and refresh tokens ###
+src/test/http/*.http

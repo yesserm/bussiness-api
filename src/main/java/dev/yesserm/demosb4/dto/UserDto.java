@@ -12,6 +12,8 @@ public record UserDTO(
         boolean active,
         Set<String> roles,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        String createdBy,
+        String updatedBy
 ) {
 }
