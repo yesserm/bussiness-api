@@ -11,5 +11,5 @@
 
     <artifactId>common-contracts</artifactId>
     <name>common-contracts</name>
-    <description>Shared contracts module placeholder</description>
+    <description>Shared API and event contracts for demosb4 services</description>
 </project>
