@@ -1,0 +1,7 @@
+### OpenAPI JSON
+GET http://localhost:8080/v3/api-docs
+Accept: application/json
+
+### Swagger UI
+GET http://localhost:8080/swagger-ui.html
+Accept: text/html
