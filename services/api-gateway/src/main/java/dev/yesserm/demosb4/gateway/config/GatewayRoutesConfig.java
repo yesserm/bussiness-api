@@ -13,7 +13,7 @@ class GatewayRoutesConfig {
         return routes.routes()
                 .route("legacy-auth", route -> route
                         .path("/api/v1/auth/**")
-                        .uri(properties.legacyMonolithUri()))
+                        .uri(properties.authServiceUri()))
                 .route("legacy-openapi", route -> route
                         .path("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                         .uri(properties.legacyMonolithUri()))
