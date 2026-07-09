@@ -6,6 +6,7 @@ import dev.yesserm.demosb4.authservice.dto.RefreshTokenRequest;
 import dev.yesserm.demosb4.authservice.dto.RegisterRequest;
 import dev.yesserm.demosb4.authservice.dto.TokenDTO;
 import dev.yesserm.demosb4.authservice.dto.UserDTO;
+import dev.yesserm.demosb4.authservice.event.DomainEventPublisher;
 import dev.yesserm.demosb4.authservice.exception.EmailAlreadyExistsException;
 import dev.yesserm.demosb4.authservice.exception.ForbiddenException;
 import dev.yesserm.demosb4.authservice.exception.InvalidCredentialsException;
@@ -17,6 +18,8 @@ import dev.yesserm.demosb4.authservice.repository.UserRepository;
 import dev.yesserm.demosb4.authservice.service.AuthService;
 import dev.yesserm.demosb4.authservice.service.JwtService;
 import dev.yesserm.demosb4.authservice.service.RefreshTokenService;
+import dev.yesserm.demosb4.contracts.event.EventMetadata;
+import dev.yesserm.demosb4.contracts.event.UserRegisteredEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,7 +30,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +43,7 @@ class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final DomainEventPublisher eventPublisher;
     private final String adminSetupKey;
 
     AuthServiceImpl(
@@ -47,6 +53,7 @@ class AuthServiceImpl implements AuthService {
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
             RefreshTokenService refreshTokenService,
+            DomainEventPublisher eventPublisher,
             @Value("${app.security.admin-setup-key:}") String adminSetupKey
     ) {
         this.authenticationManager = authenticationManager;
@@ -55,6 +62,7 @@ class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
+        this.eventPublisher = eventPublisher;
         this.adminSetupKey = adminSetupKey;
     }
 
@@ -114,6 +122,16 @@ class AuthServiceImpl implements AuthService {
         user.setRoles(Set.of(role));
 
         User saved = userRepository.save(user);
+        eventPublisher.publish(new UserRegisteredEvent(
+                UUID.randomUUID(),
+                saved.getId().toString(),
+                Instant.now(),
+                new EventMetadata(null, null, null, "auth-service"),
+                saved.getId(),
+                saved.getName(),
+                saved.getEmail(),
+                saved.getRoles().stream().map(Role::getName).collect(Collectors.toUnmodifiableSet())
+        ));
         return buildResponse(saved, refreshTokenService.create(saved));
     }
 

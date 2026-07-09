@@ -1,11 +1,15 @@
 package dev.yesserm.demosb4.userservice.service.impl;
 
+import dev.yesserm.demosb4.contracts.event.EventMetadata;
+import dev.yesserm.demosb4.contracts.event.RoleChangedEvent;
+import dev.yesserm.demosb4.contracts.event.UserProfileUpdatedEvent;
 import dev.yesserm.demosb4.contracts.pagination.PageResponse;
 import dev.yesserm.demosb4.userservice.dto.ChangePasswordRequest;
 import dev.yesserm.demosb4.userservice.dto.ChangeRoleRequest;
 import dev.yesserm.demosb4.userservice.dto.SearchUserRequest;
 import dev.yesserm.demosb4.userservice.dto.UpdateProfileRequest;
 import dev.yesserm.demosb4.userservice.dto.UserDTO;
+import dev.yesserm.demosb4.userservice.event.DomainEventPublisher;
 import dev.yesserm.demosb4.userservice.exception.EmailAlreadyExistsException;
 import dev.yesserm.demosb4.userservice.exception.ForbiddenException;
 import dev.yesserm.demosb4.userservice.exception.InvalidPasswordException;
@@ -23,24 +27,30 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserManagementServiceImpl implements UserManagementService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final DomainEventPublisher eventPublisher;
 
     public UserManagementServiceImpl(
             UserRepository userRepository,
             RoleRepository roleRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            DomainEventPublisher eventPublisher
     ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -73,7 +83,21 @@ public class UserManagementServiceImpl implements UserManagementService {
         user.setPhone(request.phone());
         user.setAvatar(request.avatar());
 
-        return UserMapper.toDto(user);
+        UserDTO dto = UserMapper.toDto(user);
+        eventPublisher.publish(new UserProfileUpdatedEvent(
+                UUID.randomUUID(),
+                user.getId().toString(),
+                Instant.now(),
+                new EventMetadata(null, null, null, "user-service"),
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getAvatar(),
+                user.getRoles().stream().map(Role::getName).collect(Collectors.toUnmodifiableSet()),
+                authentication.getName()
+        ));
+        return dto;
     }
 
     @Override
@@ -96,11 +120,26 @@ public class UserManagementServiceImpl implements UserManagementService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
+        Set<String> previousRoles = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toUnmodifiableSet());
         Role role = roleRepository.findByName(request.role())
                 .orElseThrow(() -> new RoleNotFoundException(request.role()));
 
         user.setRoles(Set.of(role));
-        return UserMapper.toDto(user);
+        UserDTO dto = UserMapper.toDto(user);
+        eventPublisher.publish(new RoleChangedEvent(
+                UUID.randomUUID(),
+                user.getId().toString(),
+                Instant.now(),
+                new EventMetadata(null, null, null, "user-service"),
+                user.getId(),
+                user.getEmail(),
+                previousRoles,
+                Set.of(role.getName()),
+                authentication.getName()
+        ));
+        return dto;
     }
 
     @Override
