@@ -21,6 +21,11 @@
         <module>services/legacy-monolith</module>
         <module>services/auth-service</module>
         <module>services/user-service</module>
+        <module>services/business-service</module>
+        <module>services/catalog-service</module>
+        <module>services/orders-service</module>
+        <module>services/booking-service</module>
+        <module>services/notifications-service</module>
         <module>services/api-gateway</module>
         <module>platform/eureka-server</module>
         <module>platform/config-server</module>
