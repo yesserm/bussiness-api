@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 class SwaggerUiController {
+    private static final String SWAGGER_UI_VERSION = "5.21.0";
 
     @GetMapping(path = {"/swagger-ui.html", "/swagger-ui/index.html"}, produces = MediaType.TEXT_HTML_VALUE)
     String swaggerUi() {
@@ -16,11 +17,12 @@ class SwaggerUiController {
                   <meta charset="utf-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1">
                   <title>demosb4 Swagger UI</title>
-                  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+                  <link rel="stylesheet" href="/webjars/swagger-ui/%s/swagger-ui.css">
                 </head>
                 <body>
                   <div id="swagger-ui"></div>
-                  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+                  <script src="/webjars/swagger-ui/%s/swagger-ui-bundle.js"></script>
+                  <script src="/webjars/swagger-ui/%s/swagger-ui-standalone-preset.js"></script>
                   <script>
                     window.ui = SwaggerUIBundle({
                       dom_id: '#swagger-ui',
@@ -30,12 +32,12 @@ class SwaggerUiController {
                         { name: 'business-service', url: '/v3/api-docs/business' }
                       ],
                       deepLinking: true,
-                      presets: [SwaggerUIBundle.presets.apis],
+                      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
                       layout: 'StandaloneLayout'
                     });
                   </script>
                 </body>
                 </html>
-                """;
+                """.formatted(SWAGGER_UI_VERSION, SWAGGER_UI_VERSION, SWAGGER_UI_VERSION);
     }
 }
