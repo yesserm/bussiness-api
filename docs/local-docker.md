@@ -61,14 +61,14 @@ wsl docker compose down -v
 - RabbitMQ Management: `http://localhost:15672` (`guest` / `guest`)
 
 Most service ports are internal to the Compose network. The gateway routes to
-`auth-service`, `user-service`, and `legacy-monolith` by container DNS name.
+`auth-service`, `user-service`, and `business-service` by container DNS name.
 
 ## Profiles
 
 - No profile: RabbitMQ, Eureka Server, and Config Server.
-- `core`: adds Postgres, auth-service, user-service, legacy-monolith, and api-gateway.
+- `core`: adds Postgres, auth-service, user-service, business-service, and api-gateway.
 - `business`: adds the skeleton business services and their Postgres containers.
-- `all`: starts both core and business services.
+- `all`: starts core, business services, and the legacy monolith retained for migration reference.
 
 ## Notes
 

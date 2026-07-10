@@ -117,7 +117,7 @@ services:
   legacy-postgres:
     image: postgres:16-alpine
     container_name: demosb4-legacy-postgres
-    profiles: ["core", "all"]
+    profiles: ["all"]
     environment:
       <<: *postgres-environment
       POSTGRES_DB: legacydb
@@ -135,7 +135,7 @@ services:
   business-postgres:
     image: postgres:16-alpine
     container_name: demosb4-business-postgres
-    profiles: ["business", "all"]
+    profiles: ["core", "business", "all"]
     environment:
       <<: *postgres-environment
       POSTGRES_DB: businessdb
@@ -283,7 +283,7 @@ services:
         MODULE_PATH: services/legacy-monolith
         ARTIFACT_ID: demosb4
     container_name: demosb4-legacy-monolith
-    profiles: ["core", "all"]
+    profiles: ["all"]
     environment:
       <<: *app-environment
       LEGACY_DATASOURCE_URL: jdbc:postgresql://legacy-postgres:5432/legacydb
@@ -314,9 +314,9 @@ services:
       - "8080:8080"
     environment:
       <<: *app-environment
-      LEGACY_MONOLITH_URI: http://legacy-monolith:8085
       AUTH_SERVICE_URI: http://auth-service:8081
       USER_SERVICE_URI: http://user-service:8082
+      BUSINESS_SERVICE_URI: http://business-service:8083
     depends_on:
       config-server:
         condition: service_healthy
@@ -324,7 +324,7 @@ services:
         condition: service_healthy
       user-service:
         condition: service_healthy
-      legacy-monolith:
+      business-service:
         condition: service_healthy
     healthcheck:
       <<: *service-healthcheck
@@ -339,7 +339,7 @@ services:
         MODULE_PATH: services/business-service
         ARTIFACT_ID: business-service
     container_name: demosb4-business-service
-    profiles: ["business", "all"]
+    profiles: ["core", "business", "all"]
     environment:
       <<: *app-environment
       BUSINESS_DATASOURCE_URL: jdbc:postgresql://business-postgres:5432/businessdb

@@ -14,6 +14,6 @@ class OpenApiConfig {
                 .info(new Info()
                         .title("demosb4 Business Service API")
                         .version("v1")
-                        .description("Business service skeleton."));
+                        .description("Business operations and external integrations."));
     }
 }

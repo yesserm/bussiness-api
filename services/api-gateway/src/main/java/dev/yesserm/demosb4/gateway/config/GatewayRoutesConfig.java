@@ -14,15 +14,24 @@ class GatewayRoutesConfig {
                 .route("legacy-auth", route -> route
                         .path("/api/v1/auth/**")
                         .uri(properties.authServiceUri()))
-                .route("legacy-openapi", route -> route
-                        .path("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                        .uri(properties.legacyMonolithUri()))
                 .route("user-service", route -> route
                         .path("/api/v1/users/**", "/api/v1/admin/users/**")
                         .uri(properties.userServiceUri()))
-                .route("legacy-external", route -> route
+                .route("business-external", route -> route
                         .path("/api/v1/external/**")
-                        .uri(properties.legacyMonolithUri()))
+                        .uri(properties.businessServiceUri()))
+                .route("auth-openapi", route -> route
+                        .path("/v3/api-docs/auth")
+                        .filters(filter -> filter.rewritePath("/v3/api-docs/auth", "/v3/api-docs"))
+                        .uri(properties.authServiceUri()))
+                .route("users-openapi", route -> route
+                        .path("/v3/api-docs/users")
+                        .filters(filter -> filter.rewritePath("/v3/api-docs/users", "/v3/api-docs"))
+                        .uri(properties.userServiceUri()))
+                .route("business-openapi", route -> route
+                        .path("/v3/api-docs/business")
+                        .filters(filter -> filter.rewritePath("/v3/api-docs/business", "/v3/api-docs"))
+                        .uri(properties.businessServiceUri()))
                 .build();
     }
 }
