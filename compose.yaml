@@ -1,0 +1,474 @@
+name: demosb4
+
+x-app-environment: &app-environment
+  CONFIG_SERVER_URI: http://config-server:8888
+  EUREKA_CLIENT_ENABLED: "true"
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+  JWT_SECRET: V2h5VGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklzVGhpcklz
+
+x-rabbit-environment: &rabbit-environment
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USERNAME: guest
+  RABBITMQ_PASSWORD: guest
+
+x-postgres-environment: &postgres-environment
+  POSTGRES_USER: demosb4
+  POSTGRES_PASSWORD: demosb4
+
+x-service-healthcheck: &service-healthcheck
+  interval: 10s
+  timeout: 5s
+  retries: 20
+  start_period: 40s
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: demosb4-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - demosb4-network
+
+  eureka-server:
+    build:
+      context: .
+      args:
+        MODULE_PATH: platform/eureka-server
+        ARTIFACT_ID: eureka-server
+    container_name: demosb4-eureka-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8761/actuator/health"]
+    networks:
+      - demosb4-network
+
+  config-server:
+    build:
+      context: .
+      args:
+        MODULE_PATH: platform/config-server
+        ARTIFACT_ID: config-server
+    container_name: demosb4-config-server
+    ports:
+      - "8888:8888"
+    environment:
+      EUREKA_CLIENT_ENABLED: "true"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8888/actuator/health"]
+    networks:
+      - demosb4-network
+
+  auth-postgres:
+    image: postgres:16-alpine
+    container_name: demosb4-auth-postgres
+    profiles: ["core", "all"]
+    environment:
+      <<: *postgres-environment
+      POSTGRES_DB: authdb
+    volumes:
+      - auth-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demosb4 -d authdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - demosb4-network
+
+  user-postgres:
+    image: postgres:16-alpine
+    container_name: demosb4-user-postgres
+    profiles: ["core", "all"]
+    environment:
+      <<: *postgres-environment
+      POSTGRES_DB: userdb
+    volumes:
+      - user-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demosb4 -d userdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - demosb4-network
+
+  legacy-postgres:
+    image: postgres:16-alpine
+    container_name: demosb4-legacy-postgres
+    profiles: ["core", "all"]
+    environment:
+      <<: *postgres-environment
+      POSTGRES_DB: legacydb
+    volumes:
+      - legacy-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demosb4 -d legacydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - demosb4-network
+
+  business-postgres:
+    image: postgres:16-alpine
+    container_name: demosb4-business-postgres
+    profiles: ["business", "all"]
+    environment:
+      <<: *postgres-environment
+      POSTGRES_DB: businessdb
+    volumes:
+      - business-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demosb4 -d businessdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - demosb4-network
+
+  catalog-postgres:
+    image: postgres:16-alpine
+    container_name: demosb4-catalog-postgres
+    profiles: ["business", "all"]
+    environment:
+      <<: *postgres-environment
+      POSTGRES_DB: catalogdb
+    volumes:
+      - catalog-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demosb4 -d catalogdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - demosb4-network
+
+  orders-postgres:
+    image: postgres:16-alpine
+    container_name: demosb4-orders-postgres
+    profiles: ["business", "all"]
+    environment:
+      <<: *postgres-environment
+      POSTGRES_DB: ordersdb
+    volumes:
+      - orders-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demosb4 -d ordersdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - demosb4-network
+
+  booking-postgres:
+    image: postgres:16-alpine
+    container_name: demosb4-booking-postgres
+    profiles: ["business", "all"]
+    environment:
+      <<: *postgres-environment
+      POSTGRES_DB: bookingdb
+    volumes:
+      - booking-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demosb4 -d bookingdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - demosb4-network
+
+  notifications-postgres:
+    image: postgres:16-alpine
+    container_name: demosb4-notifications-postgres
+    profiles: ["business", "all"]
+    environment:
+      <<: *postgres-environment
+      POSTGRES_DB: notificationsdb
+    volumes:
+      - notifications-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demosb4 -d notificationsdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - demosb4-network
+
+  auth-service:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/auth-service
+        ARTIFACT_ID: auth-service
+    container_name: demosb4-auth-service
+    profiles: ["core", "all"]
+    environment:
+      <<: [*app-environment, *rabbit-environment]
+      AUTH_DATASOURCE_URL: jdbc:postgresql://auth-postgres:5432/authdb
+      AUTH_DATASOURCE_DRIVER: org.postgresql.Driver
+      AUTH_DATASOURCE_USERNAME: demosb4
+      AUTH_DATASOURCE_PASSWORD: demosb4
+    depends_on:
+      config-server:
+        condition: service_healthy
+      auth-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8081/actuator/health"]
+    networks:
+      - demosb4-network
+
+  user-service:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/user-service
+        ARTIFACT_ID: user-service
+    container_name: demosb4-user-service
+    profiles: ["core", "all"]
+    environment:
+      <<: [*app-environment, *rabbit-environment]
+      USER_DATASOURCE_URL: jdbc:postgresql://user-postgres:5432/userdb
+      USER_DATASOURCE_DRIVER: org.postgresql.Driver
+      USER_DATASOURCE_USERNAME: demosb4
+      USER_DATASOURCE_PASSWORD: demosb4
+    depends_on:
+      config-server:
+        condition: service_healthy
+      user-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8082/actuator/health"]
+    networks:
+      - demosb4-network
+
+  legacy-monolith:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/legacy-monolith
+        ARTIFACT_ID: demosb4
+    container_name: demosb4-legacy-monolith
+    profiles: ["core", "all"]
+    environment:
+      <<: *app-environment
+      LEGACY_DATASOURCE_URL: jdbc:postgresql://legacy-postgres:5432/legacydb
+      LEGACY_DATASOURCE_DRIVER: org.postgresql.Driver
+      LEGACY_DATASOURCE_USERNAME: demosb4
+      LEGACY_DATASOURCE_PASSWORD: demosb4
+      LEGACY_MONOLITH_PORT: "8085"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      legacy-postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8085/actuator/health"]
+    networks:
+      - demosb4-network
+
+  api-gateway:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/api-gateway
+        ARTIFACT_ID: api-gateway
+    container_name: demosb4-api-gateway
+    profiles: ["core", "all"]
+    ports:
+      - "8080:8080"
+    environment:
+      <<: *app-environment
+      LEGACY_MONOLITH_URI: http://legacy-monolith:8085
+      AUTH_SERVICE_URI: http://auth-service:8081
+      USER_SERVICE_URI: http://user-service:8082
+    depends_on:
+      config-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      legacy-monolith:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+    networks:
+      - demosb4-network
+
+  business-service:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/business-service
+        ARTIFACT_ID: business-service
+    container_name: demosb4-business-service
+    profiles: ["business", "all"]
+    environment:
+      <<: *app-environment
+      BUSINESS_DATASOURCE_URL: jdbc:postgresql://business-postgres:5432/businessdb
+      BUSINESS_DATASOURCE_DRIVER: org.postgresql.Driver
+      BUSINESS_DATASOURCE_USERNAME: demosb4
+      BUSINESS_DATASOURCE_PASSWORD: demosb4
+    depends_on:
+      config-server:
+        condition: service_healthy
+      business-postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8083/actuator/health"]
+    networks:
+      - demosb4-network
+
+  catalog-service:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/catalog-service
+        ARTIFACT_ID: catalog-service
+    container_name: demosb4-catalog-service
+    profiles: ["business", "all"]
+    environment:
+      <<: *app-environment
+      CATALOG_DATASOURCE_URL: jdbc:postgresql://catalog-postgres:5432/catalogdb
+      CATALOG_DATASOURCE_DRIVER: org.postgresql.Driver
+      CATALOG_DATASOURCE_USERNAME: demosb4
+      CATALOG_DATASOURCE_PASSWORD: demosb4
+    depends_on:
+      config-server:
+        condition: service_healthy
+      catalog-postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8084/actuator/health"]
+    networks:
+      - demosb4-network
+
+  orders-service:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/orders-service
+        ARTIFACT_ID: orders-service
+    container_name: demosb4-orders-service
+    profiles: ["business", "all"]
+    environment:
+      <<: *app-environment
+      ORDERS_DATASOURCE_URL: jdbc:postgresql://orders-postgres:5432/ordersdb
+      ORDERS_DATASOURCE_DRIVER: org.postgresql.Driver
+      ORDERS_DATASOURCE_USERNAME: demosb4
+      ORDERS_DATASOURCE_PASSWORD: demosb4
+    depends_on:
+      config-server:
+        condition: service_healthy
+      orders-postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8088/actuator/health"]
+    networks:
+      - demosb4-network
+
+  booking-service:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/booking-service
+        ARTIFACT_ID: booking-service
+    container_name: demosb4-booking-service
+    profiles: ["business", "all"]
+    environment:
+      <<: *app-environment
+      BOOKING_DATASOURCE_URL: jdbc:postgresql://booking-postgres:5432/bookingdb
+      BOOKING_DATASOURCE_DRIVER: org.postgresql.Driver
+      BOOKING_DATASOURCE_USERNAME: demosb4
+      BOOKING_DATASOURCE_PASSWORD: demosb4
+    depends_on:
+      config-server:
+        condition: service_healthy
+      booking-postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8086/actuator/health"]
+    networks:
+      - demosb4-network
+
+  notifications-service:
+    build:
+      context: .
+      args:
+        MODULE_PATH: services/notifications-service
+        ARTIFACT_ID: notifications-service
+    container_name: demosb4-notifications-service
+    profiles: ["business", "all"]
+    environment:
+      <<: [*app-environment, *rabbit-environment]
+      NOTIFICATIONS_DATASOURCE_URL: jdbc:postgresql://notifications-postgres:5432/notificationsdb
+      NOTIFICATIONS_DATASOURCE_DRIVER: org.postgresql.Driver
+      NOTIFICATIONS_DATASOURCE_USERNAME: demosb4
+      NOTIFICATIONS_DATASOURCE_PASSWORD: demosb4
+    depends_on:
+      config-server:
+        condition: service_healthy
+      notifications-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://localhost:8087/actuator/health"]
+    networks:
+      - demosb4-network
+
+networks:
+  demosb4-network:
+    driver: bridge
+
+volumes:
+  auth-postgres-data:
+  user-postgres-data:
+  legacy-postgres-data:
+  business-postgres-data:
+  catalog-postgres-data:
+  orders-postgres-data:
+  booking-postgres-data:
+  notifications-postgres-data:
